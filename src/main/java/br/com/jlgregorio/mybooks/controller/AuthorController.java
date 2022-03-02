@@ -4,6 +4,9 @@ import br.com.jlgregorio.mybooks.exception.NotFoundException;
 import br.com.jlgregorio.mybooks.model.AuthorModel;
 import br.com.jlgregorio.mybooks.service.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,18 +20,30 @@ public class AuthorController {
     AuthorService service;
 
     @GetMapping(produces = {"application/json", "application/xml"})
-    public List<AuthorModel> findAll(){
-        return service.findAll();
+    public CollectionModel<AuthorModel> findAll(){
+        CollectionModel<AuthorModel> authors = CollectionModel.of(service.findAll());
+        for (AuthorModel author : authors){
+            buildEntityLink(author);
+        }
+        buildCollectionLink(authors);
+        return authors;
     }
 
     @GetMapping(value = "/find/{name}", produces = {"application/json", "application/xml"})
-    public List<AuthorModel> findByName(@PathVariable("name") String name){
-        return service.findByName("%" + name + "%" );
+    public CollectionModel<AuthorModel> findByName(@PathVariable("name") String name){
+        CollectionModel<AuthorModel> authors = CollectionModel.of(service.findByName("%" + name + "%" ));
+        for (AuthorModel author : authors){
+            buildEntityLink(author);
+        }
+        buildCollectionLink(authors);
+        return authors;
     }
 
     @GetMapping(value = "/{id}", produces = {"application/json", "application/xml"})
     public AuthorModel findById(@PathVariable("id") long id){
-        return service.findById(id);
+        AuthorModel author = service.findById(id);
+        buildEntityLink(author);
+        return author;
     }
 
     @PostMapping(produces = {"application/xml", "application/json"},
@@ -47,6 +62,20 @@ public class AuthorController {
     public ResponseEntity<?> delete(@PathVariable long id){
         service.delete(id);
         return ResponseEntity.ok().build();
+    }
+
+    public void buildEntityLink(AuthorModel author){
+        author.add(
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(
+                        AuthorController.class).findById(author.getId())).withSelfRel()
+                );
+    }
+
+    public void buildCollectionLink(CollectionModel<AuthorModel> authors){
+        authors.add(
+                WebMvcLinkBuilder.linkTo(
+                        WebMvcLinkBuilder.methodOn(AuthorController.class).findAll()).withRel(IanaLinkRelations.COLLECTION)
+                );
     }
 
 }

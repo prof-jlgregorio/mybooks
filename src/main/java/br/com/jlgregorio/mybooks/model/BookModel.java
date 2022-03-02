@@ -1,11 +1,16 @@
 package br.com.jlgregorio.mybooks.model;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
+@Relation(collectionRelation = "books")
 @Entity
 @Table(name = "book")
-public class BookModel implements Serializable {
+public class BookModel extends RepresentationModel<BookModel> implements Serializable {
+    //..extends the representation model
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
