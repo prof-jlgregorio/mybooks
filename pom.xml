@@ -57,10 +57,18 @@
 			<version>8.4.3</version>
 		</dependency>
 
+		<!-- Content Negotiation XML Support -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-xml</artifactId>
 		</dependency>
+
+		<!-- Content Negotiation YAML Support -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-yaml</artifactId>
+		</dependency>
+
 
 		<!-- HATEOAS support -->
 		<dependency>

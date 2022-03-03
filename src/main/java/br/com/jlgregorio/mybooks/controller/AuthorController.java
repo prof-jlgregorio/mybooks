@@ -19,7 +19,7 @@ public class AuthorController {
     @Autowired
     AuthorService service;
 
-    @GetMapping(produces = {"application/json", "application/xml"})
+    @GetMapping(produces = {"application/json", "application/xml", "application/x-yaml"})
     public CollectionModel<AuthorModel> findAll(){
         CollectionModel<AuthorModel> authors = CollectionModel.of(service.findAll());
         for (AuthorModel author : authors){
@@ -29,7 +29,7 @@ public class AuthorController {
         return authors;
     }
 
-    @GetMapping(value = "/find/{name}", produces = {"application/json", "application/xml"})
+    @GetMapping(value = "/find/{name}", produces = {"application/json", "application/xml", "application/x-yaml"})
     public CollectionModel<AuthorModel> findByName(@PathVariable("name") String name){
         CollectionModel<AuthorModel> authors = CollectionModel.of(service.findByName("%" + name + "%" ));
         for (AuthorModel author : authors){
@@ -39,15 +39,15 @@ public class AuthorController {
         return authors;
     }
 
-    @GetMapping(value = "/{id}", produces = {"application/json", "application/xml"})
+    @GetMapping(value = "/{id}", produces = {"application/json", "application/xml", "application/x-yaml"})
     public AuthorModel findById(@PathVariable("id") long id){
         AuthorModel author = service.findById(id);
         buildEntityLink(author);
         return author;
     }
 
-    @PostMapping(produces = {"application/xml", "application/json"},
-                 consumes = {"application/xml", "application/json"})
+    @PostMapping(produces = {"application/xml", "application/json", "application/x-yaml"},
+                 consumes = {"application/xml", "application/json", "application/x-yaml"})
     public AuthorModel save(@RequestBody AuthorModel model){
         return service.save(model);
     }

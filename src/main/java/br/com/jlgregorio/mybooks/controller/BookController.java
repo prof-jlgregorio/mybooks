@@ -21,7 +21,7 @@ public class BookController {
     @Autowired
     private BookService service;
 
-    @GetMapping(value = "/{id}", produces = {"application/json", "application/xml"})
+    @GetMapping(value = "/{id}", produces = {"application/json", "application/xml", "application/x-yaml"})
     public BookModel findById(@PathVariable long id) {
         BookModel book = service.findById(id);
         //..adding HATEOAS Support
