@@ -9,5 +9,7 @@ values
     ('Perdido em Marte', 3),
     ('Jogador Número 1', 4),
     ('Armada', 4),
-    ('Justiça Ancilar', 5)
+    ('Justiça Ancilar', 5),
+    ('A volta ao mundo em 80 dias', 7),
+    ('Vinte Mil Léguas Submarinas', 7)
 

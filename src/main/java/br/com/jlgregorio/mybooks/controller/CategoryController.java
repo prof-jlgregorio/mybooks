@@ -19,7 +19,8 @@ public class CategoryController {
     @GetMapping(value = "/{id}", produces = {"application/json", "application/xml"})
     public CategoryModel findById(@PathVariable long id){
         CategoryModel model =  service.findById(id);
-        //buildEntityLink(model);
+        //create the link before return
+        buildEntityLink(model);
         return model;
     }
 
@@ -51,6 +52,7 @@ public class CategoryController {
 
     //..converts to model
     private void buildEntityLink(CategoryModel category){
+        //..add the link
         category.add(
                 WebMvcLinkBuilder.linkTo(
                         WebMvcLinkBuilder.methodOn(CategoryController.class).findById(category.getId())
