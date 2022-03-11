@@ -4,6 +4,8 @@ import br.com.jlgregorio.mybooks.exception.NotFoundException;
 import br.com.jlgregorio.mybooks.model.AuthorModel;
 import br.com.jlgregorio.mybooks.repository.IAuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,8 +20,14 @@ public class AuthorService {
         return repository.findById(id).orElseThrow(() -> new NotFoundException(null));
     }
 
-    public List<AuthorModel> findAll(){
-        return repository.findAll();
+//    public List<AuthorModel> findAll(Pageable pageable){
+//        var authors = repository.findAll(pageable).getContent();
+//        return authors;
+//    }
+
+    public Page<AuthorModel> findAll(Pageable pageable){
+        var page = repository.findAll(pageable);
+        return page;
     }
 
     public List<AuthorModel> findByName(String name){

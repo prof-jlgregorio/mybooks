@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.QueryParameter;
-import org.springframework.hateoas.server.LinkBuilder;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,29 +45,36 @@ public class BookController {
     @GetMapping(value = "/find", produces = {"application/json", "application/xml"})
     public CollectionModel<BookModel> findByTitleOrAuthor(@RequestParam Optional<String> title,
                                                           @RequestParam Optional<String> authorName) {
+        //..creates a list
         List<BookModel> books = new ArrayList<BookModel>();
-
+        //..creates a link
         Link link = null;
-
+        //..if the parameter 'title' is present, perform the search by title
         if (title.isPresent()) {
             books = service.findByTitle(title.get());
-            link = WebMvcLinkBuilder.linkTo(BookController.class).slash("?title="+title.get()).withSelfRel();
+            //..the link is defined
+            link = WebMvcLinkBuilder.linkTo(BookController.class)
+                    .slash("?title="+title.get()).withRel("query");
         }
+        //..if the parameter 'authorName' is present, perform the search by authorName
         if (authorName.isPresent()) {
             books = service.findByAuthor(authorName.get());
-            link = WebMvcLinkBuilder.linkTo(BookController.class).slash("?authorName="+authorName.get()).withSelfRel();
+            //..the link is defined with parameter
+            link = WebMvcLinkBuilder.linkTo(BookController.class)
+                    .slash("?authorName="+authorName.get()).withRel("query");
         }
-
+        //..iterate the books to create the links
         for (final BookModel bookModel : books
         ) {
             buildEntityLink(bookModel);
         }
-
+        //..create the CollectionModel
         CollectionModel<BookModel> bookCollection = CollectionModel.of(books);
-
+        //..create the link to collection
         buildCollectionLink(bookCollection);
+        //..add the link to parametrized method
         bookCollection.add(link);
-
+        //..returns the collection
         return bookCollection;
     }
 

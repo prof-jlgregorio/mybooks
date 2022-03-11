@@ -1,16 +1,20 @@
 package br.com.jlgregorio.mybooks.controller;
 
-import br.com.jlgregorio.mybooks.exception.NotFoundException;
 import br.com.jlgregorio.mybooks.model.AuthorModel;
 import br.com.jlgregorio.mybooks.service.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/author/v1")
@@ -19,14 +23,28 @@ public class AuthorController {
     @Autowired
     AuthorService service;
 
+    private PagedResourcesAssembler<AuthorModel> pagedResourcesAssembler;
+
     @GetMapping(produces = {"application/json", "application/xml", "application/x-yaml"})
-    public CollectionModel<AuthorModel> findAll(){
-        CollectionModel<AuthorModel> authors = CollectionModel.of(service.findAll());
+    public ResponseEntity<PagedModel<AuthorModel>> findAll(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                           @RequestParam(value = "size", defaultValue = "10") int size,
+                                                           @RequestParam(value = "direction", defaultValue = "asc") String direction,
+                                                           PagedResourcesAssembler<AuthorModel> assembler){
+
+        //add a Direction to sort the results
+        var sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+        //add a Pageable object to paginate the results
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, "name"));
+
+
+        Page<AuthorModel> authors = service.findAll(pageable);
         for (AuthorModel author : authors){
             buildEntityLink(author);
         }
-        buildCollectionLink(authors);
-        return authors;
+
+        return new ResponseEntity(assembler.toModel(authors), HttpStatus.OK);
+
     }
 
     @GetMapping(value = "/find/{name}", produces = {"application/json", "application/xml", "application/x-yaml"})
@@ -35,7 +53,7 @@ public class AuthorController {
         for (AuthorModel author : authors){
             buildEntityLink(author);
         }
-        buildCollectionLink(authors);
+        //buildCollectionLink(authors);
         return authors;
     }
 
@@ -71,11 +89,11 @@ public class AuthorController {
                 );
     }
 
-    public void buildCollectionLink(CollectionModel<AuthorModel> authors){
-        authors.add(
-                WebMvcLinkBuilder.linkTo(
-                        WebMvcLinkBuilder.methodOn(AuthorController.class).findAll()).withRel(IanaLinkRelations.COLLECTION)
-                );
-    }
+//    public void buildCollectionLink(CollectionModel<AuthorModel> authors){
+//        authors.add(
+//                WebMvcLinkBuilder.linkTo(
+//                        WebMvcLinkBuilder.methodOn(AuthorController.class).findAll()).withRel(IanaLinkRelations.COLLECTION)
+//                );
+//    }
 
 }
