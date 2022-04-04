@@ -4,6 +4,8 @@ import br.com.jlgregorio.mybooks.exception.NotFoundException;
 import br.com.jlgregorio.mybooks.model.CategoryModel;
 import br.com.jlgregorio.mybooks.repository.ICategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,9 +20,18 @@ public class CategoryService {
         return repository.findById(id).orElseThrow(() -> new NotFoundException(null));
     }
 
-    public List<CategoryModel> findAll(){
-        return repository.findAll();
+//    public List<CategoryModel> findAll(){
+//        return repository.findAll();
+//    }
+
+    public Page<CategoryModel> findAll(Pageable pageable){
+        return repository.findAll(pageable);
     }
+
+    public Page<CategoryModel> findByName(String name, Pageable pageable){
+        return repository.findByNameContainingIgnoreCase(name, pageable);
+    }
+
 
     public CategoryModel save(CategoryModel model){
         return repository.save(model);

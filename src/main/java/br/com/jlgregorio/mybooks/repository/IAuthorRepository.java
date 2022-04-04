@@ -1,6 +1,8 @@
 package br.com.jlgregorio.mybooks.repository;
 
 import br.com.jlgregorio.mybooks.model.AuthorModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,10 +13,6 @@ import java.util.List;
 @Repository
 public interface IAuthorRepository extends JpaRepository<AuthorModel, Long> {
 
-    @Query(value = "SELECT * FROM author ORDER BY name", nativeQuery = true)
-    public List<AuthorModel> findAll();
-
-    @Query(value = "SELECT * FROM author WHERE upper(name) like upper(:name) ORDER BY name ", nativeQuery = true)
-    public List<AuthorModel> findByName(@Param("name") String name);
+    Page<AuthorModel> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
 }

@@ -37,25 +37,44 @@ public class AuthorController {
         //add a Pageable object to paginate the results
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, "name"));
 
-
         Page<AuthorModel> authors = service.findAll(pageable);
         for (AuthorModel author : authors){
             buildEntityLink(author);
         }
-
         return new ResponseEntity(assembler.toModel(authors), HttpStatus.OK);
-
     }
 
-    @GetMapping(value = "/find/{name}", produces = {"application/json", "application/xml", "application/x-yaml"})
-    public CollectionModel<AuthorModel> findByName(@PathVariable("name") String name){
-        CollectionModel<AuthorModel> authors = CollectionModel.of(service.findByName("%" + name + "%" ));
+    @GetMapping(value = "/find",produces = {"application/json", "application/xml", "application/x-yaml"})
+    public ResponseEntity<PagedModel<AuthorModel>> findByName(@RequestParam(value = "name", defaultValue = "%") String name,
+                                                              @RequestParam(value = "page", defaultValue = "0") int page,
+                                                              @RequestParam(value = "size", defaultValue = "10") int size,
+                                                              @RequestParam(value = "direction", defaultValue = "asc") String direction,
+                                                              PagedResourcesAssembler<AuthorModel> assembler){
+
+        //add a Direction to sort the results
+        var sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+        //add a Pageable object to paginate the results
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, "name"));
+
+        Page<AuthorModel> authors = service.findByName(name, pageable);
         for (AuthorModel author : authors){
             buildEntityLink(author);
         }
-        //buildCollectionLink(authors);
-        return authors;
+        return new ResponseEntity(assembler.toModel(authors), HttpStatus.OK);
     }
+
+//    @GetMapping(value = "/find/{name}", produces = {"application/json", "application/xml", "application/x-yaml"})
+//    public CollectionModel<AuthorModel> findByName(@PathVariable("name") String name){
+//        CollectionModel<AuthorModel> authors = CollectionModel.of(service.findByName("%" + name + "%" ));
+//        for (AuthorModel author : authors){
+//            buildEntityLink(author);
+//        }
+//        //buildCollectionLink(authors);
+//        return authors;
+//    }
+
+
 
     @GetMapping(value = "/{id}", produces = {"application/json", "application/xml", "application/x-yaml"})
     public AuthorModel findById(@PathVariable("id") long id){

@@ -1,15 +1,24 @@
 package br.com.jlgregorio.mybooks.controller;
 
+import br.com.jlgregorio.mybooks.model.AuthorModel;
 import br.com.jlgregorio.mybooks.model.BookModel;
 import br.com.jlgregorio.mybooks.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.print.Book;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,53 +38,53 @@ public class BookController {
         return book;
     }
 
-    @GetMapping(value = "/", produces = {"application/json", "application/xml"})
-    public CollectionModel<BookModel> findAll() {
-        //..typecast List to CollectionModel
-        CollectionModel<BookModel> books = CollectionModel.of(service.findAll());
-        //..adding HATEOAS support for each BookModel
-        for (final BookModel book : books) {
+    @GetMapping(produces = {"application/json", "application/xml"})
+    public ResponseEntity<PagedModel<BookModel>> findAll(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                         @RequestParam(value = "size", defaultValue = "10") int size,
+                                                         PagedResourcesAssembler<BookModel> assembler){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BookModel> books = null;
+        Link link = null;
+        books = service.findAll(pageable);
+
+        link = WebMvcLinkBuilder.linkTo(BookController.class).
+                slash("?page="+page+"&size="+size).withRel("query");
+
+        for(final BookModel book : books){
             buildEntityLink(book);
         }
-        //create the link to collection
-        buildCollectionLink(books);
-        return books;
+
+        return new ResponseEntity(assembler.toModel(books), HttpStatus.OK);
+
     }
 
     @GetMapping(value = "/find", produces = {"application/json", "application/xml"})
-    public CollectionModel<BookModel> findByTitleOrAuthor(@RequestParam Optional<String> title,
-                                                          @RequestParam Optional<String> authorName) {
-        //..creates a list
-        List<BookModel> books = new ArrayList<BookModel>();
+    public ResponseEntity<PagedModel<BookModel>> findByTitle(@RequestParam(value = "title", defaultValue = "%") String title,
+                                                             @RequestParam(value = "page", defaultValue = "0") int page,
+                                                             @RequestParam(value = "size", defaultValue = "10") int size,
+                                                             @RequestParam(value = "direction", defaultValue = "asc") String direction,
+                                                             PagedResourcesAssembler<BookModel> assembler) {
+
+        var sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, "title"));
+
+        //..creates a page
+        Page<BookModel> books = null;
         //..creates a link
         Link link = null;
-        //..if the parameter 'title' is present, perform the search by title
-        if (title.isPresent()) {
-            books = service.findByTitle(title.get());
-            //..the link is defined
-            link = WebMvcLinkBuilder.linkTo(BookController.class)
-                    .slash("?title="+title.get()).withRel("query");
-        }
-        //..if the parameter 'authorName' is present, perform the search by authorName
-        if (authorName.isPresent()) {
-            books = service.findByAuthor(authorName.get());
-            //..the link is defined with parameter
-            link = WebMvcLinkBuilder.linkTo(BookController.class)
-                    .slash("?authorName="+authorName.get()).withRel("query");
-        }
+
+        books = service.findByTitle(title, pageable);
+        //..the link is defined
+        link = WebMvcLinkBuilder.linkTo(BookController.class)
+                .slash("?title=" + title).withRel("query");
+
         //..iterate the books to create the links
         for (final BookModel bookModel : books
         ) {
             buildEntityLink(bookModel);
         }
-        //..create the CollectionModel
-        CollectionModel<BookModel> bookCollection = CollectionModel.of(books);
-        //..create the link to collection
-        buildCollectionLink(bookCollection);
-        //..add the link to parametrized method
-        bookCollection.add(link);
-        //..returns the collection
-        return bookCollection;
+        return new ResponseEntity(assembler.toModel(books), HttpStatus.OK);
+
     }
 
     @PostMapping(produces = {"application/json", "application/xml"}, consumes = {"application/json", "application/xml"})
@@ -92,12 +101,6 @@ public class BookController {
     public ResponseEntity<?> delete(@PathVariable("id") long id) {
         service.delete(id);
         return ResponseEntity.ok().build();
-    }
-
-    private void buildCollectionLink(CollectionModel<BookModel> books) {
-        books.add(WebMvcLinkBuilder.linkTo(
-                WebMvcLinkBuilder.methodOn(BookController.class).findAll()
-        ).withRel(IanaLinkRelations.COLLECTION));
     }
 
     private void buildEntityLink(BookModel book) {

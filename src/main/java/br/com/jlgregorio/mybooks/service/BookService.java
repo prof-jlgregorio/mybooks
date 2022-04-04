@@ -4,6 +4,8 @@ import br.com.jlgregorio.mybooks.exception.NotFoundException;
 import br.com.jlgregorio.mybooks.model.BookModel;
 import br.com.jlgregorio.mybooks.repository.IBookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.awt.print.Book;
@@ -15,16 +17,16 @@ public class BookService {
     @Autowired
     private IBookRepository repository;
 
-    public List<BookModel> findAll(){
-        return repository.findAll();
+    public Page<BookModel> findAll(Pageable pageable){
+        return repository.findAll(pageable);
     }
 
-    public List<BookModel> findByTitle(String title){
-        return repository.findByTitleContainingIgnoreCase(title);
+    public Page<BookModel> findByTitle(String title, Pageable pageable){
+        return repository.findByTitleContainingIgnoreCase(title, pageable);
     }
 
-    public List<BookModel> findByAuthor(String authorName){
-        return repository.findByAuthorName("%" + authorName + "%");
+    public Page<BookModel> findByAuthor(String authorName, Pageable pageable){
+        return repository.findByAuthorName("%" + authorName + "%", pageable);
     }
 
     public BookModel findById(long id){

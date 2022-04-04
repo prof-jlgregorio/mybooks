@@ -30,8 +30,9 @@ public class AuthorService {
         return page;
     }
 
-    public List<AuthorModel> findByName(String name){
-        return repository.findByName(name);
+    public Page<AuthorModel> findByName(String name, Pageable pageable){
+        var page = repository.findByNameContainingIgnoreCase(name, pageable);
+        return  page;
     }
 
     public AuthorModel save(AuthorModel model){
