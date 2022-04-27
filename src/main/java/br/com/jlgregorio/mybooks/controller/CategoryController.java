@@ -1,6 +1,5 @@
 package br.com.jlgregorio.mybooks.controller;
 
-import br.com.jlgregorio.mybooks.model.BookModel;
 import br.com.jlgregorio.mybooks.model.CategoryModel;
 import br.com.jlgregorio.mybooks.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,13 +8,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.swing.text.html.Option;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/category/v1")
@@ -23,13 +24,15 @@ public class CategoryController {
 
     @Autowired
     private CategoryService service;
+    private Optional<CategoryModel> category;
 
     @GetMapping(value = "/{id}", produces = {"application/json", "application/xml"})
-    public CategoryModel findById(@PathVariable long id){
-        CategoryModel model =  service.findById(id);
-        //create the link before return
-        buildEntityLink(model);
-        return model;
+    public Optional<CategoryModel> findById(@PathVariable long id){
+        Optional<CategoryModel> optional = service.findById(id);
+        if(optional.isPresent()){
+            buildHateoas(optional.get());
+        }
+        return optional;
     }
 
 //    @GetMapping(produces = {"application/json", "application/xml"})
@@ -54,7 +57,7 @@ public class CategoryController {
         categories = service.findAll(pageable);
         for (final CategoryModel categoryModel : categories
         ) {
-            buildEntityLink(categoryModel);
+            buildHateoas(categoryModel);
         }
         return new ResponseEntity(assembler.toModel(categories), HttpStatus.OK);
     }
@@ -70,7 +73,7 @@ public class CategoryController {
         categories = service.findByName(name, pageable);
         for (final CategoryModel categoryModel : categories
         ) {
-            buildEntityLink(categoryModel);
+            buildHateoas(categoryModel);
         }
         return new ResponseEntity(assembler.toModel(categories), HttpStatus.OK);
 
@@ -93,13 +96,16 @@ public class CategoryController {
     }
 
     //..converts to model
-    private void buildEntityLink(CategoryModel category){
-        //..add the link
-        category.add(
-                WebMvcLinkBuilder.linkTo(
-                        WebMvcLinkBuilder.methodOn(CategoryController.class).findById(category.getId())
-                ).withSelfRel()
-        );
+//    private void buildHateoas(Optional<CategoryModel> category){
+//        if(category.isPresent()){
+//            category.get().add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.
+//                    methodOn(CategoryController.class).findById(category.get().getId())).withSelfRel());
+//        }
+//    }
+
+    private void buildHateoas(CategoryModel category){
+            category.add(WebMvcLinkBuilder.linkTo(CategoryController.class).
+                    slash(category.getId()).withSelfRel());
     }
 
 //    private void buildCollectionLink(CollectionModel<CategoryModel> categories){

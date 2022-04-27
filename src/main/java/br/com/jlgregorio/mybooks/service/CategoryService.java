@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryService {
@@ -16,13 +16,13 @@ public class CategoryService {
     @Autowired
     private ICategoryRepository repository;
 
-    public CategoryModel findById(long id){
-        return repository.findById(id).orElseThrow(() -> new NotFoundException(null));
-    }
-
-//    public List<CategoryModel> findAll(){
-//        return repository.findAll();
+//    public CategoryModel findById(long id){
+//        return repository.findById(id).orElseThrow(() -> new NotFoundException(null));
 //    }
+
+    public Optional<CategoryModel> findById(long id){
+        return repository.findById(id);
+    }
 
     public Page<CategoryModel> findAll(Pageable pageable){
         return repository.findAll(pageable);

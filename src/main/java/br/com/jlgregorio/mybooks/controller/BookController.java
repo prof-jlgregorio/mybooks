@@ -1,6 +1,5 @@
 package br.com.jlgregorio.mybooks.controller;
 
-import br.com.jlgregorio.mybooks.model.AuthorModel;
 import br.com.jlgregorio.mybooks.model.BookModel;
 import br.com.jlgregorio.mybooks.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +8,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
@@ -17,11 +15,6 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.awt.print.Book;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/book/v1")
@@ -33,8 +26,11 @@ public class BookController {
     @GetMapping(value = "/{id}", produces = {"application/json", "application/xml", "application/x-yaml"})
     public BookModel findById(@PathVariable long id) {
         BookModel book = service.findById(id);
+
         //..adding HATEOAS Support
-        buildEntityLink(book);
+        buildHateoas(book);
+
+
         return book;
     }
 
@@ -45,13 +41,13 @@ public class BookController {
         Pageable pageable = PageRequest.of(page, size);
         Page<BookModel> books = null;
         Link link = null;
+
         books = service.findAll(pageable);
 
-        link = WebMvcLinkBuilder.linkTo(BookController.class).
-                slash("?page="+page+"&size="+size).withRel("query");
 
-        for(final BookModel book : books){
-            buildEntityLink(book);
+        for (final BookModel bookModel : books
+        ) {
+            buildHateoas(bookModel);
         }
 
         return new ResponseEntity(assembler.toModel(books), HttpStatus.OK);
@@ -70,18 +66,16 @@ public class BookController {
 
         //..creates a page
         Page<BookModel> books = null;
+
         //..creates a link
         Link link = null;
 
         books = service.findByTitle(title, pageable);
-        //..the link is defined
-        link = WebMvcLinkBuilder.linkTo(BookController.class)
-                .slash("?title=" + title).withRel("query");
 
         //..iterate the books to create the links
         for (final BookModel bookModel : books
         ) {
-            buildEntityLink(bookModel);
+            buildHateoas(bookModel);
         }
         return new ResponseEntity(assembler.toModel(books), HttpStatus.OK);
 
@@ -103,23 +97,29 @@ public class BookController {
         return ResponseEntity.ok().build();
     }
 
-    private void buildEntityLink(BookModel book) {
+    private void buildHateoas(BookModel book) {
         //..add a self link
         book.add(WebMvcLinkBuilder.linkTo(
                 WebMvcLinkBuilder.methodOn(
                         BookController.class).findById(book.getId())
         ).withSelfRel());
-        //..add the link of relatioships
+
+        //..add the link of relationships
         if (!book.getCategory().hasLinks()) {
-            Link categoryLink = WebMvcLinkBuilder.linkTo(
-                    WebMvcLinkBuilder.methodOn(
-                            CategoryController.class).findById(book.getCategory().getId())).withSelfRel();
+            Link categoryLink = WebMvcLinkBuilder.linkTo(CategoryController.class).
+                    slash(book.getCategory().getId()).withSelfRel();
             book.getCategory().add(categoryLink);
         }
+
+//        if(!book.getCategory().hasLinks()){
+//            book.getCategory().add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.
+//                    methodOn(CategoryController.class).
+//                    findById(book.getCategory().getId())).withSelfRel());
+//        }
+
         if (!book.getAuthor().hasLinks()) {
-            Link authorLink = WebMvcLinkBuilder.linkTo(
-                    WebMvcLinkBuilder.methodOn(
-                            AuthorController.class).findById(book.getAuthor().getId())).withSelfRel();
+            Link authorLink = WebMvcLinkBuilder.linkTo(AuthorController.class).
+                    slash(book.getAuthor().getId()).withSelfRel();
             book.getAuthor().add(authorLink);
         }
     }

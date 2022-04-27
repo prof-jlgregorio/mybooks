@@ -10,7 +10,7 @@ import java.util.Objects;
 @Relation(collectionRelation = "categories")
 @Entity
 @Table(name = "category")
-public class CategoryModel extends RepresentationModel implements Serializable {
+public class CategoryModel extends RepresentationModel<CategoryModel> implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
