@@ -21,8 +21,8 @@ public interface IBookRepository extends JpaRepository<BookModel, Long> {
 //    public List<BookModel> findByAuthorName(@Param("authorName") String authorName);
 
     @Query(value = "SELECT b.* from book b, author a WHERE b.author_id = a.id AND  UPPER(a.name) LIKE UPPER(:authorName) ORDER BY title", nativeQuery = true)
-    public Page<BookModel> findByAuthorName(@Param("authorName") String authorName,
-                                            Pageable pageable);
+    Page<BookModel> findByAuthorName(@Param("authorName") String authorName,
+                                     Pageable pageable);
 
 
 

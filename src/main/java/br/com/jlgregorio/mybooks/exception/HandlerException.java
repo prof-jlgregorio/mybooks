@@ -37,6 +37,15 @@ public class HandlerException {
         return new ResponseEntity<>(responseException, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(InvalidJwtAuthenticationException.class)
+    public final ResponseEntity<ResponseException> invalidJwtAuthenticationException(Exception ex, WebRequest request){
+        ResponseException responseException = new ResponseException(
+                new Date(),
+                ex.getMessage(),
+                request.getDescription(false) );
+        return new ResponseEntity<>(responseException, HttpStatus.BAD_REQUEST);
+    }
+
 
 
 
