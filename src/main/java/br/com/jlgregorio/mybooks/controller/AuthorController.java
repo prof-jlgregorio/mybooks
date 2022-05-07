@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/author/v1")
+@RequestMapping("/api/author/v1")
 public class AuthorController {
 
     @Autowired

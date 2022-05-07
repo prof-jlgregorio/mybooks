@@ -19,7 +19,7 @@ import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/category/v1")
+@RequestMapping("/api/category/v1")
 public class CategoryController {
 
     @Autowired
