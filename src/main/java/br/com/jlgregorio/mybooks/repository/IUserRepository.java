@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IUserRepository extends JpaRepository<UserModel, Long> {
 
-    public UserModel findByUserNameEquals(String userName);
+    //..Query methods
+    public UserModel findByUserNameEqualsIgnoreCase(String userName);
 
 }

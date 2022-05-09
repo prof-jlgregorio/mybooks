@@ -7,6 +7,6 @@ create table if not exists user (
     account_non_locked tinyint not null,
     credentials_non_expired tinyint not null,
     enabled tinyint not null,
-    constraint PK_USER primary key(id),
-    constraint UQ_USER_NAME unique (user_name)
+    primary key(id),
+    unique (user_name)
 );

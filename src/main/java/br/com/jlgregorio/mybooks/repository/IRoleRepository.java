@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IRoleRepository extends JpaRepository<RoleModel, Long> {
 
-    public RoleModel findByNameEquals(String name);
+    public RoleModel findByNameEqualsIgnoreCase(String name);
 
 }
