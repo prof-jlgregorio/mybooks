@@ -35,9 +35,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                     .authorizeRequests()
-                    .antMatchers("auth/signin", "api-docs/**", "swagger-ui/html**")
+                    .antMatchers("/api/auth/signin", "/api-docs/**", "/swagger-ui/html**")
                     .permitAll().antMatchers("/api/**").authenticated()
-                    .antMatchers("/users").denyAll()
+                    .antMatchers("/api/users").denyAll()
                 .and()
                     .apply(new JwtConfigurer(tokenProvider));
     }

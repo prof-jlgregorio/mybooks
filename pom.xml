@@ -16,11 +16,11 @@
 	<properties>
 		<java.version>11</java.version>
 
-		<!--flyway -->
-		<flyway.url>jdbc:mysql://localhost:3306/mybooks</flyway.url>
-		<flyway.user>root</flyway.user>
-		<flyway.password>mysqldba</flyway.password>
-		<flyway.schemas>mybooks</flyway.schemas>
+<!--		flyway -->
+<!--		<flyway.url>jdbc:mysql://localhost:3306/mybooks</flyway.url>-->
+<!--		<flyway.user>root</flyway.user>-->
+<!--		<flyway.password>mysqldba</flyway.password>-->
+<!--		<flyway.schemas>mybooks</flyway.schemas>-->
 
 	</properties>
 	<dependencies>
@@ -51,10 +51,10 @@
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 
+		<!--		Flyway-->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-maven-plugin</artifactId>
-			<version>8.4.3</version>
+			<artifactId>flyway-core</artifactId>
 		</dependency>
 
 		<!-- Content Negotiation XML Support -->
@@ -110,6 +110,18 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<configuration>
+					<url>jdbc:mysql://localhost:3306/mybooks</url>
+					<user>root</user>
+					<password>mysqldba</password>
+					<schemas>mybooks</schemas>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 

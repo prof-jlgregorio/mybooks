@@ -1,7 +1,7 @@
 package br.com.jlgregorio.mybooks.controller;
 
 import br.com.jlgregorio.mybooks.repository.UserRepository;
-import br.com.jlgregorio.mybooks.security.AccountCredentialsVO;
+import br.com.jlgregorio.mybooks.security.UserCredentials;
 import br.com.jlgregorio.mybooks.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthenticationController {
 
     @Autowired
@@ -32,7 +32,7 @@ public class AuthenticationController {
     UserRepository userRepository;
 
     @PostMapping("/signin")
-    public ResponseEntity signin(@RequestBody AccountCredentialsVO credentials){
+    public ResponseEntity signin(@RequestBody UserCredentials credentials){
         try {
             var userName = credentials.getUserName();
             var passwd = credentials.getPassword();

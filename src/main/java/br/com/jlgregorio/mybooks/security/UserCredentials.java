@@ -2,15 +2,15 @@ package br.com.jlgregorio.mybooks.security;
 
 import java.io.Serializable;
 
-public class AccountCredentialsVO implements Serializable {
+public class UserCredentials implements Serializable {
 
     private String userName;
     private String password;
 
-    public AccountCredentialsVO() {
+    public UserCredentials() {
     }
 
-    public AccountCredentialsVO(String userName, String passwork) {
+    public UserCredentials(String userName, String passwork) {
         this.userName = userName;
         this.password = passwork;
     }
